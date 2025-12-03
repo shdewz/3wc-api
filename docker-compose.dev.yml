@@ -15,7 +15,7 @@ services:
     environment:
       NODE_ENV: development
       PORT: 4000
-      DOTENV_HIDE_TIPS: 'true'
+      DOTENV_CONFIG_QUIET: 'true'
 
     ports:
       - '4000:4000'
