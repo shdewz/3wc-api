@@ -24,7 +24,6 @@ router.get('/osu/callback', async (req, res) => {
   const { code, state } = req.query;
 
   if (!code || !state) return res.status(400).send('Missing code or state');
-  console.log({ state, saved_state: req.cookies.oauth_state });
   if (state !== req.cookies.oauth_state)
     return res.status(403).send('Invalid state');
 
