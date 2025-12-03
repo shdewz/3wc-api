@@ -1,8 +1,9 @@
 import dotenv from 'dotenv';
 import express from 'express';
 import cookieParser from 'cookie-parser';
-import authRoutes from '@routes/auth.js';
 import cors from 'cors';
+import authRoutes from '@routes/auth.js';
+import healthRoutes from '@routes/health.js';
 
 dotenv.config();
 
@@ -19,10 +20,8 @@ app.use(cors({ origin: allowed, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/auth', authRoutes);
-
-app.get('/health', (_req, res) => res.sendStatus(200));
+app.get('/health', healthRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
-  console.log(process.env.NODE_ENV);
 });
