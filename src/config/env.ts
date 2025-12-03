@@ -1,10 +1,12 @@
 import dotenv from 'dotenv';
 import { z } from 'zod';
 
-const envFile = process.env.NODE_ENV === 'production' ? '.env' : '.env.dev';
+if (process.env.NODE_ENV !== 'production') {
+  process.env.DOTENV_CONFIG_QUIET = 'true';
+  const envFile = process.env.NODE_ENV === 'test' ? '.env.test' : '.env.dev';
 
-process.env.DOTENV_CONFIG_QUIET = 'true';
-dotenv.config({ path: envFile });
+  dotenv.config({ path: envFile });
+}
 
 const EnvSchema = z.object({
   NODE_ENV: z

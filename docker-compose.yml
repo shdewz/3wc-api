@@ -5,6 +5,8 @@ services:
       dockerfile: Dockerfile
     image: 3wc-api:prod
     container_name: 3wc-api
+    env_file:
+      - .env
     environment:
       NODE_ENV: production
       DOTENV_HIDE_TIPS: 'true'
