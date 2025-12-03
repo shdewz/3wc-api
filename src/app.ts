@@ -20,7 +20,7 @@ app.use(cors({ origin: allowed, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
 app.use('/auth', authRoutes);
-app.get('/health', healthRoutes);
+app.use('/health', healthRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);

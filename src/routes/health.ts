@@ -8,7 +8,7 @@ router.get('/', (_, res) => {
     'Cache-Control': 'no-store',
     Connection: 'keep-alive',
   });
-  res.status(200).end();
+  res.status(200).send('ok').end();
 });
 
 export default router;
