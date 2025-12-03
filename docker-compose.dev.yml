@@ -1,0 +1,28 @@
+services:
+  api-dev:
+    image: node:24-alpine
+    container_name: 3wc-api-dev
+    working_dir: /app
+
+    entrypoint: ['/bin/sh', '-lc']
+    command: >
+      'corepack enable &&
+       pnpm install &&
+       pnpm exec tsx watch src/app.ts'
+
+    env_file:
+      - .env.dev
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      DOTENV_HIDE_TIPS: 'true'
+
+    ports:
+      - '4000:4000'
+
+    volumes:
+      - .:/app
+      - pnpm-store:/app/node_modules
+
+volumes:
+  pnpm-store:

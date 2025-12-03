@@ -1,0 +1,38 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 3wc-api:prod
+    container_name: 3wc-api
+    environment:
+      NODE_ENV: production
+      DOTENV_HIDE_TIPS: 'true'
+
+      VIRTUAL_HOST: ${VIRTUAL_HOST}
+      VIRTUAL_PATH: /api
+      VIRTUAL_DEST: /
+
+      LETSENCRYPT_HOST: ${VIRTUAL_HOST}
+      LETSENCRYPT_EMAIL: ${EMAIL}
+      LETSENCRYPT_DNS: cloudflare
+    networks:
+      - nginx-proxy
+    restart: unless-stopped
+
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "fetch('http://127.0.0.1:'+(process.env.PORT||4000)+'/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))",
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+
+networks:
+  nginx-proxy:
+    external: true
