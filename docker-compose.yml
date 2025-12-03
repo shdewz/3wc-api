@@ -12,7 +12,7 @@ services:
       DOTENV_CONFIG_QUIET: 'true'
 
       VIRTUAL_HOST: ${VIRTUAL_HOST}
-      VIRTUAL_PATH: /api
+      VIRTUAL_PATH: /api/
       VIRTUAL_DEST: /
 
       LETSENCRYPT_HOST: ${VIRTUAL_HOST}
