@@ -3,7 +3,7 @@ import crypto from 'node:crypto';
 import fetch from 'node-fetch';
 import { Router } from 'express';
 
-import { env } from '@/config/env';
+import { env } from '@/config/env.js';
 
 const router = Router();
 
