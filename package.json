@@ -8,7 +8,7 @@
     "dev": "cross-env NODE_ENV=development tsx watch src/app.ts",
     "dev:d": "docker compose -f docker-compose.dev.yml up --build",
     "build": "tsc",
-    "start": "cross-env NODE_ENV=production node dist/app.js",
+    "start": "cross-env NODE_ENV=production node -r tsconfig-paths/register dist/app.js",
     "lint": "eslint --fix",
     "format": "pnpm exec prettier --write ."
   },

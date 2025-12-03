@@ -7,7 +7,7 @@
       "@/*": ["*"],
       "@routes/*": ["routes/*"]
     },
-    "moduleResolution": "Node",
+    "moduleResolution": "node",
     "outDir": "dist",
     "importsNotUsedAsValues": "remove",
     "strict": true,
