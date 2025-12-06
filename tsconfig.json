@@ -5,7 +5,8 @@
     "baseUrl": "./src",
     "paths": {
       "@/*": ["*"],
-      "@routes/*": ["routes/*"]
+      "@routes/*": ["routes/*"],
+      "@types/*": ["types/*"]
     },
     "moduleResolution": "node",
     "outDir": "dist",
