@@ -1,4 +1,24 @@
 services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: 3wc-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: threewc
+      POSTGRES_USER: threewc
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'pg_isready -U ${POSTGRES_USER:-threewc} -d ${POSTGRES_DB:-threewc}',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 10
+
   api:
     build:
       context: .
@@ -18,9 +38,19 @@ services:
       LETSENCRYPT_HOST: ${VIRTUAL_HOST}
       LETSENCRYPT_EMAIL: ${EMAIL}
       LETSENCRYPT_DNS: cloudflare
+
+      POSTGRES_USER: ${POSTGRES_USER:-threewc}
+      POSTGRES_DB: ${POSTGRES_DB:-threewc}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      DATABASE_URL: postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+
     networks:
       - nginx-proxy
     restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
 
     healthcheck:
       test:
@@ -38,3 +68,6 @@ services:
 networks:
   nginx-proxy:
     external: true
+
+volumes:
+  pgdata:

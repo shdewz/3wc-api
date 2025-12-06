@@ -1,5 +1,5 @@
 
-FROM node:20-alpine AS base
+FROM node:24-alpine AS base
 WORKDIR /app
 RUN corepack enable
 
@@ -16,14 +16,14 @@ FROM node:24-alpine AS runtime
 WORKDIR /app
 RUN corepack enable
 
+ENV NODE_ENV=production
+ENV PORT=4000
+
 COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=build /app/dist ./dist
 
-ENV NODE_ENV=production
-ENV PORT=4000
-
 EXPOSE 4000
 
-CMD ["node", "dist/app.js"]
+CMD node dist/db/migrate.js && node dist/server.js
