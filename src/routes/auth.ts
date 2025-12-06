@@ -3,6 +3,7 @@ import crypto from 'node:crypto';
 import fetch from 'node-fetch';
 import { Router } from 'express';
 
+import { AuthToken } from '@/types/osu';
 import { env } from '@/config/env.js';
 
 const router = Router();
@@ -39,9 +40,16 @@ router.get('/osu/callback', async (req, res) => {
     }),
   });
 
-  const tokens = await tokenRes.json();
+  if (!tokenRes.ok) return res.status(403).send('Error fetching access token');
 
-  res.json(tokens);
+  const tokens = (await tokenRes.json()) as AuthToken;
+
+  const userRes = await fetch('https://osu.ppy.sh/api/v2/me', {
+    headers: { Authorization: `Bearer ${tokens.access_token}` },
+  });
+  const user = await userRes.json();
+
+  res.json(user);
 });
 
 export default router;
