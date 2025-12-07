@@ -17,10 +17,8 @@ const run = async () => {
   const client = await pool.connect();
 
   try {
-    console.log('Acquiring advisory lock...');
     await client.query('SELECT pg_advisory_lock($1)', [1234567890]);
 
-    console.log('Ensuring migrations table exists...');
     await client.query(`
       CREATE TABLE IF NOT EXISTS migrations (
         id TEXT PRIMARY KEY,
@@ -60,7 +58,6 @@ const run = async () => {
 
     console.log('Migrations complete.');
   } finally {
-    console.log('Releasing advisory lock...');
     try {
       await client.query('SELECT pg_advisory_unlock($1)', [1234567890]);
     } catch (e) {
