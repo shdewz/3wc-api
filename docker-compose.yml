@@ -2,13 +2,15 @@ services:
   postgres:
     image: postgres:18-alpine
     container_name: 3wc-db
-    restart: unless-stopped
+
     environment:
       POSTGRES_DB: threewc
       POSTGRES_USER: threewc
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+
     volumes:
       - pgdata:/var/lib/postgresql/data
+
     healthcheck:
       test:
         [
@@ -19,12 +21,17 @@ services:
       timeout: 5s
       retries: 10
 
+    networks:
+      - nginx-proxy
+    restart: unless-stopped
+
   api:
     build:
       context: .
       dockerfile: Dockerfile
     image: 3wc-api:prod
     container_name: 3wc-api
+
     env_file:
       - .env
     environment:
