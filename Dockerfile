@@ -23,6 +23,7 @@ COPY package.json pnpm-lock.yaml ./
 RUN pnpm install --prod --frozen-lockfile
 
 COPY --from=build /app/dist ./dist
+COPY src/db/migrations ./dist/db/migrations
 
 EXPOSE 4000
 
