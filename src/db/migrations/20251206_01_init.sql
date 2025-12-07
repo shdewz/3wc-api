@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS roles (
 );
 
 CREATE TABLE IF NOT EXISTS user_roles (
-  user_id BIGINT NOT NULL REFERENCES users(osu_id) ON DELETE CASCADE,
+  user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
   role_id INT NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
   assigned_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   PRIMARY KEY (user_id, role_id)
@@ -40,16 +40,16 @@ CREATE TABLE IF NOT EXISTS role_permissions (
 );
 
 CREATE TABLE IF NOT EXISTS tokens (
-  osu_id BIGINT REFERENCES users(osu_id) ON DELETE CASCADE,
+  user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
   access_token TEXT NOT NULL,
   refresh_token TEXT NOT NULL,
   expires_at TIMESTAMPTZ NOT NULL,
   issued_at TIMESTAMPTZ DEFAULT now(),
-  PRIMARY KEY (osu_id)
+  PRIMARY KEY (user_id)
 );
 
 CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
-CREATE INDEX IF NOT EXISTS idx_users_user_id ON users (osu_id);
+CREATE INDEX IF NOT EXISTS idx_users_user_id ON users (user_id);
 CREATE INDEX IF NOT EXISTS idx_users_country ON users (country_code);
 
 -- automatic updated_at triggers
