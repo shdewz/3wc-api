@@ -27,4 +27,4 @@ COPY src/db/migrations ./dist/db/migrations
 
 EXPOSE 4000
 
-CMD node dist/db/migrate.js && node dist/server.js
+CMD node dist/db/migrate.js && node dist/app.js
