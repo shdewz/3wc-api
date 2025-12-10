@@ -2,7 +2,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { defineConfig, globalIgnores } from 'eslint/config';
-import { fixupConfigRules, fixupPluginRules } from '@eslint/compat';
+import { fixupPluginRules } from '@eslint/compat';
 import _import from 'eslint-plugin-import';
 import unusedImports from 'eslint-plugin-unused-imports';
 import typescriptEslint from '@typescript-eslint/eslint-plugin';
