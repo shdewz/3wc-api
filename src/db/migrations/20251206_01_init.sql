@@ -51,21 +51,3 @@ CREATE TABLE IF NOT EXISTS tokens (
 CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
 CREATE INDEX IF NOT EXISTS idx_users_user_id ON users (user_id);
 CREATE INDEX IF NOT EXISTS idx_users_country ON users (country_code);
-
--- automatic updated_at triggers
-
-CREATE OR REPLACE FUNCTION set_updated_at()
-RETURNS TRIGGER AS $$
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER users_updated_at
-BEFORE UPDATE ON users
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
-
-CREATE TRIGGER roles_updated_at
-BEFORE UPDATE ON roles
-FOR EACH ROW EXECUTE FUNCTION set_updated_at();
