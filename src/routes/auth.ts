@@ -1,6 +1,5 @@
 import crypto from 'node:crypto';
 
-import fetch from 'node-fetch';
 import { Router } from 'express';
 
 import { AuthToken } from '@/types/osu';
