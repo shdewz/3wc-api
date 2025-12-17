@@ -5,7 +5,7 @@ import helmet from 'helmet';
 import authRouter from '@routes/auth/index.js';
 import healthRoutes from '@routes/health.js';
 
-import { env } from '@/config/env';
+import { env } from '@/config/env.js';
 
 const PORT = env.PORT || 4000;
 
