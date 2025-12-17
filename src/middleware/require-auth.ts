@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
 
-import { verifySession } from '@/lib/jwt';
+import { verifySession } from '@/lib/jwt.js';
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
   const token = req.cookies?.session;

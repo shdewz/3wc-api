@@ -2,8 +2,8 @@ import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
-import authRouter from '@routes/auth/index';
-import healthRoutes from '@routes/health';
+import authRouter from '@routes/auth/index.js';
+import healthRoutes from '@routes/health.js';
 
 import { env } from '@/config/env';
 

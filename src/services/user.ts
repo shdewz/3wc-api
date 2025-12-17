@@ -1,4 +1,4 @@
-import { pool } from '@/db';
+import { pool } from '@/db/index.js';
 
 export const upsertUserFromOsu = async (user: any) => {
   await pool.query(

@@ -1,6 +1,6 @@
 import type { AuthToken } from '@/types/osu';
 
-import { env } from '@/config/env';
+import { env } from '@/config/env.js';
 
 export const fetchOsuToken = async (code: string): Promise<AuthToken> => {
   const res = await fetch('https://osu.ppy.sh/oauth/token', {

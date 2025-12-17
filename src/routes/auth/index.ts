@@ -1,7 +1,7 @@
 import { Router } from 'express';
 
-import meRouter from './me';
-import osuRouter from './osu';
+import meRouter from './me.js';
+import osuRouter from './osu.js';
 
 const router = Router();
 
