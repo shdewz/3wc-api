@@ -1,20 +1,22 @@
 import express from 'express';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import authRoutes from '@routes/auth.js';
-import healthRoutes from '@routes/health.js';
+import helmet from 'helmet';
+import authRouter from '@routes/auth';
+import healthRoutes from '@routes/health';
 
-import { env } from '@/config/env.js';
+import { env } from '@/config/env';
 
 const PORT = env.PORT || 4000;
 
 const app = express();
+app.use(helmet());
+app.use(express.json());
+app.use(cookieParser());
 
 if (env.IS_PROD) app.set('trust proxy', 1);
 
-const allowedOrigins = env.FRONTEND_URL
-  ? [env.FRONTEND_URL]
-  : ['http://localhost:5173'];
+const allowedOrigins = env.FRONTEND_URL ? [env.FRONTEND_URL] : ['http://localhost:5173'];
 
 app.use(
   cors({
@@ -27,10 +29,10 @@ app.use(
   })
 );
 
-app.use(express.json());
-app.use(cookieParser());
-app.use('/auth', authRoutes);
+app.use('/auth', authRouter);
 app.use('/health', healthRoutes);
+
+app.use((_req, res) => res.status(404).send('Not found'));
 
 app.listen(PORT, () => {
   console.log(`Server listening on port ${PORT}`);
