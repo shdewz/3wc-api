@@ -35,12 +35,8 @@ const run = async () => {
     const appliedSet = new Set(applied.map((r) => r.id));
 
     for (const file of files) {
-      if (appliedSet.has(file)) {
-        console.log(`Already applied: ${file}`);
-        continue;
-      }
+      if (appliedSet.has(file)) continue;
 
-      console.log(`Applying: ${file}`);
       const sql = fs.readFileSync(path.join(MIGRATIONS_DIR, file), 'utf-8');
 
       try {
