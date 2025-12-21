@@ -43,15 +43,16 @@ router.get('/callback', async (req, res) => {
     sub: String(user.id),
     username: user.username,
     country_code: user.country_code ?? 'XX',
+    avatar_url: user.avatar_url,
     roles,
   });
 
-  res.cookie('session', sessionToken, defaultCookieOptions);
+  res.cookie(env.COOKIE_NAME, sessionToken, defaultCookieOptions);
   res.cookie('csrf_token', crypto.randomUUID(), publicCookieOptions);
 
   const returnTo = req.cookies.oauth_return_to || env.FRONTEND_URL || '/';
-  res.clearCookie('oauth_state', { path: '/' });
-  res.clearCookie('oauth_return_to', { path: '/' });
+  res.clearCookie('oauth_state', defaultCookieOptions);
+  res.clearCookie('oauth_return_to', defaultCookieOptions);
 
   return res.redirect(returnTo);
 });
