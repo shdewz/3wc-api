@@ -9,35 +9,24 @@ export type RoleRow = {
 };
 
 export const findRoleByName = async (name: string): Promise<RoleRow | null> => {
-  const { rows } = await pool.query<RoleRow>(
-    `SELECT * FROM roles WHERE name = $1 LIMIT 1`,
-    [name]
-  );
+  const { rows } = await pool.query<RoleRow>(`SELECT * FROM roles WHERE name = $1 LIMIT 1`, [name]);
 
   return rows[0] ?? null;
 };
 
 export const findRoleById = async (roleId: number): Promise<RoleRow | null> => {
-  const { rows } = await pool.query<RoleRow>(
-    `SELECT * FROM roles WHERE id = $1 LIMIT 1`,
-    [roleId]
-  );
+  const { rows } = await pool.query<RoleRow>(`SELECT * FROM roles WHERE id = $1 LIMIT 1`, [roleId]);
 
   return rows[0] ?? null;
 };
 
 export const listRoles = async (): Promise<RoleRow[]> => {
-  const { rows } = await pool.query<RoleRow>(
-    `SELECT * FROM roles ORDER BY name`
-  );
+  const { rows } = await pool.query<RoleRow>(`SELECT * FROM roles ORDER BY name`);
 
   return rows;
 };
 
-export const ensureRole = async (
-  name: string,
-  isSystem = true
-): Promise<RoleRow> => {
+export const ensureRole = async (name: string, isSystem = true): Promise<RoleRow> => {
   const { rows } = await pool.query<RoleRow>(
     `
     INSERT INTO roles (name, is_system)
@@ -51,10 +40,7 @@ export const ensureRole = async (
   return rows[0];
 };
 
-export const assignRole = async (
-  userId: number,
-  roleName: string
-): Promise<void> => {
+export const assignRole = async (userId: number, roleName: string): Promise<void> => {
   const role = await findRoleByName(roleName);
 
   if (!role) throw new Error(`Role not found: ${roleName}`);
@@ -69,18 +55,12 @@ export const assignRole = async (
   );
 };
 
-export const revokeRole = async (
-  userId: number,
-  roleName: string
-): Promise<void> => {
+export const revokeRole = async (userId: number, roleName: string): Promise<void> => {
   const role = await findRoleByName(roleName);
 
   if (!role) return;
 
-  await pool.query(
-    `DELETE FROM user_roles WHERE user_id = $1 AND role_id = $2`,
-    [userId, role.id]
-  );
+  await pool.query(`DELETE FROM user_roles WHERE user_id = $1 AND role_id = $2`, [userId, role.id]);
 };
 
 export const getUserRoles = async (userId: number): Promise<string[]> => {
@@ -98,10 +78,7 @@ export const getUserRoles = async (userId: number): Promise<string[]> => {
   return rows.map((r) => r.name);
 };
 
-export const hasRole = async (
-  userId: number,
-  roleName: string
-): Promise<boolean> => {
+export const hasRole = async (userId: number, roleName: string): Promise<boolean> => {
   const { rows } = await pool.query<{ exists: boolean }>(
     `
     SELECT EXISTS (
