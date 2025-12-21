@@ -1,6 +1,6 @@
 import { pool } from '@/db/index.js';
 
-export const upsertUserFromOsu = async (user: any) => {
+export const upsertUserFromOsu = async (user: any): Promise<void> => {
   await pool.query(
     `
     INSERT INTO users (user_id, username, country_code, avatar_url, global_rank, country_rank)
@@ -29,7 +29,7 @@ export const upsertTokens = async (
   accessToken: string,
   refreshToken: string,
   expiresAt: Date
-) => {
+): Promise<void> => {
   await pool.query(
     `
     INSERT INTO tokens (user_id, access_token, refresh_token, expires_at, issued_at)
@@ -42,6 +42,10 @@ export const upsertTokens = async (
     `,
     [userId, accessToken, refreshToken, expiresAt]
   );
+};
+
+export const removeTokens = async (userId: number | string): Promise<void> => {
+  await pool.query(`DELETE FROM tokens WHERE user_id = $1`, [userId]);
 };
 
 export const getUserRoles = async (userId: number | string): Promise<string[]> => {
