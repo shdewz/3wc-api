@@ -5,5 +5,6 @@
     "source.fixAll.eslint": "always"
   },
   "eslint.run": "onSave",
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "typescript.preferences.importModuleSpecifierEnding": "js"
 }
