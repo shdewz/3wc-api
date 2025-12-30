@@ -20,7 +20,7 @@ export const fetchOsuToken = async (code: string): Promise<AuthToken> => {
 };
 
 export const fetchOsuMe = async (accessToken: string): Promise<any> => {
-  const res = await fetch('https://osu.ppy.sh/api/v2/me', {
+  const res = await fetch('https://osu.ppy.sh/api/v2/me?mode=osu', {
     headers: { Authorization: `Bearer ${accessToken}` },
   });
   if (!res.ok) throw new Error(await res.text());
