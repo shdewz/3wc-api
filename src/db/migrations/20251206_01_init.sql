@@ -5,8 +5,11 @@ CREATE TABLE IF NOT EXISTS users (
   avatar_url TEXT,
   discord_id TEXT,
   discord_username TEXT,
+  discord_avatar_url TEXT,
   global_rank INT,
   country_rank INT,
+  registered BOOLEAN DEFAULT FALSE,
+  wants_captain BOOLEAN DEFAULT FALSE,
   created_at TIMESTAMPTZ DEFAULT now(),
   updated_at TIMESTAMPTZ DEFAULT now()
 );
@@ -40,6 +43,15 @@ CREATE TABLE IF NOT EXISTS role_permissions (
 
 CREATE TABLE IF NOT EXISTS tokens (
   user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
+  access_token TEXT NOT NULL,
+  refresh_token TEXT NOT NULL,
+  expires_at TIMESTAMPTZ NOT NULL,
+  issued_at TIMESTAMPTZ DEFAULT now(),
+  PRIMARY KEY (user_id)
+);
+
+CREATE TABLE IF NOT EXISTS discord_tokens (
+  user_id BIGINT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
   access_token TEXT NOT NULL,
   refresh_token TEXT NOT NULL,
   expires_at TIMESTAMPTZ NOT NULL,
