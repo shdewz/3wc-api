@@ -2,6 +2,7 @@ import { Request, Response, Router } from 'express';
 
 import meRouter from './me.js';
 import osuRouter from './osu.js';
+import discordRouter from './discord.js';
 
 import { verifyCsrf } from '@/middleware/csrf.js';
 import { env } from '@/config/env.js';
@@ -13,6 +14,7 @@ const router = Router();
 
 router.use('/', meRouter);
 router.use('/osu', osuRouter);
+router.use('/discord', discordRouter);
 
 router.post('/logout', requireAuth, verifyCsrf, async (req: Request, res: Response) => {
   const userId = (req as any).user?.sub;
