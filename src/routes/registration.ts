@@ -1,0 +1,50 @@
+import { Request, Response, Router } from 'express';
+
+import { requireAuth } from '@/middleware/require-auth.js';
+import { verifyCsrf } from '@/middleware/csrf.js';
+import { getUserById } from '@/services/user.js';
+import { pool } from '@/db/index.js';
+
+const router = Router();
+
+router.post('/register', requireAuth, verifyCsrf, async (req: Request, res: Response) => {
+  const session = (req as any).user!;
+  const readRules = String(req.body?.read_rules ?? '').toLowerCase() === 'true';
+  const wantsCaptain = String(req.body?.wants_captain ?? '').toLowerCase() === 'true';
+
+  if (!readRules) {
+    return res.redirect(
+      303,
+      '/register?error=' + encodeURIComponent('You must confirm that you have read the rules.')
+    );
+  }
+
+  const dbUser = await getUserById(session.sub);
+  if (!dbUser) {
+    return res.redirect(
+      303,
+      '/register?error=' + encodeURIComponent('Account not found. Please re-login.')
+    );
+  }
+  if (!dbUser.discord_id) {
+    return res.redirect(
+      303,
+      '/register?error=' + encodeURIComponent('Discord must be linked before registering.')
+    );
+  }
+
+  await pool.query(
+    `
+    UPDATE users
+    SET registered = TRUE,
+        wants_captain = $2,
+        updated_at = now()
+    WHERE user_id = $1
+    `,
+    [session.sub, wantsCaptain]
+  );
+
+  return res.redirect(303, '/register/success');
+});
+
+export default router;
