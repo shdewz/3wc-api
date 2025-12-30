@@ -43,6 +43,7 @@ router.get('/callback', async (req, res) => {
     sub: String(user.id),
     username: user.username,
     country_code: user.country_code ?? 'XX',
+    global_rank: user.statistics.global_rank,
     avatar_url: user.avatar_url,
     roles,
   });
