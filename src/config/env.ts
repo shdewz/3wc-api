@@ -20,6 +20,10 @@ const EnvSchema = z.object({
   OSU_CLIENT_SECRET: z.string().min(1),
   OSU_REDIRECT_PATH: z.string().default('auth/osu/callback'),
 
+  DISCORD_CLIENT_ID: z.string().min(1),
+  DISCORD_CLIENT_SECRET: z.string().min(1),
+  DISCORD_REDIRECT_PATH: z.string().default('auth/discord/callback'),
+
   JWT_SECRET: z.string().min(32, 'JWT_SECRET should be a long random string'),
   COOKIE_NAME: z.string().default('session'),
 
@@ -36,18 +40,29 @@ let BASE_URL = raw.BASE_URL ?? defaultBase;
 if (!BASE_URL) throw new Error('BASE_URL is required in production.');
 
 if (!BASE_URL.endsWith('/')) BASE_URL += '/';
+
 const OSU_REDIRECT_PATH = raw.OSU_REDIRECT_PATH.replace(/^\/+/, '');
 const OSU_REDIRECT_URI = new URL(OSU_REDIRECT_PATH, BASE_URL).toString();
+
+const DISCORD_REDIRECT_PATH = raw.DISCORD_REDIRECT_PATH.replace(/^\/+/, '');
+const DISCORD_REDIRECT_URI = new URL(DISCORD_REDIRECT_PATH, BASE_URL).toString();
 
 export const env = {
   NODE_ENV: raw.NODE_ENV,
   PORT: Number(raw.PORT),
   BASE_URL,
   FRONTEND_URL: raw.FRONTEND_URL,
+
   OSU_CLIENT_ID: raw.OSU_CLIENT_ID,
   OSU_CLIENT_SECRET: raw.OSU_CLIENT_SECRET,
   OSU_REDIRECT_PATH,
   OSU_REDIRECT_URI,
+
+  DISCORD_CLIENT_ID: raw.DISCORD_CLIENT_ID,
+  DISCORD_CLIENT_SECRET: raw.DISCORD_CLIENT_SECRET,
+  DISCORD_REDIRECT_PATH,
+  DISCORD_REDIRECT_URI,
+
   JWT_SECRET: raw.JWT_SECRET,
   COOKIE_NAME: raw.COOKIE_NAME,
   DATABASE_URL: raw.DATABASE_URL,
