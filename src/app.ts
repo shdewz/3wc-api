@@ -4,6 +4,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import authRouter from '@routes/auth/index.js';
 import healthRoutes from '@routes/health.js';
+import configRoutes from '@routes/config.js';
 import registrationRoutes from '@routes/registration.js';
 
 import { env } from '@/config/env.js';
@@ -40,6 +41,7 @@ else {
 
 app.use('/auth', authRouter);
 app.use('/health', healthRoutes);
+app.use('/config', configRoutes);
 app.use('/', registrationRoutes);
 
 app.use((_req, res) => res.status(404).send('Not found'));
