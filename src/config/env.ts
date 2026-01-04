@@ -16,6 +16,9 @@ const EnvSchema = z.object({
   BASE_URL: z.url().optional(),
   FRONTEND_URL: z.url().optional(),
 
+  REGISTRATION_START: z.string().optional(),
+  REGISTRATION_END: z.string().optional(),
+
   OSU_CLIENT_ID: z.string().min(1),
   OSU_CLIENT_SECRET: z.string().min(1),
   OSU_REDIRECT_PATH: z.string().default('auth/osu/callback'),
@@ -52,6 +55,9 @@ export const env = {
   PORT: Number(raw.PORT),
   BASE_URL,
   FRONTEND_URL: raw.FRONTEND_URL,
+
+  REGISTRATION_START: raw.REGISTRATION_START,
+  REGISTRATION_END: raw.REGISTRATION_END,
 
   OSU_CLIENT_ID: raw.OSU_CLIENT_ID,
   OSU_CLIENT_SECRET: raw.OSU_CLIENT_SECRET,
