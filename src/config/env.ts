@@ -26,6 +26,8 @@ const EnvSchema = z.object({
   DISCORD_CLIENT_ID: z.string().min(1),
   DISCORD_CLIENT_SECRET: z.string().min(1),
   DISCORD_REDIRECT_PATH: z.string().default('auth/discord/callback'),
+  DISCORD_BOT_TOKEN: z.string().min(1),
+  DISCORD_GUILD_ID: z.string().min(1),
 
   JWT_SECRET: z.string().min(32, 'JWT_SECRET should be a long random string'),
   COOKIE_NAME: z.string().default('session'),
@@ -68,6 +70,8 @@ export const env = {
   DISCORD_CLIENT_SECRET: raw.DISCORD_CLIENT_SECRET,
   DISCORD_REDIRECT_PATH,
   DISCORD_REDIRECT_URI,
+  DISCORD_BOT_TOKEN: raw.DISCORD_BOT_TOKEN,
+  DISCORD_GUILD_ID: raw.DISCORD_GUILD_ID,
 
   JWT_SECRET: raw.JWT_SECRET,
   COOKIE_NAME: raw.COOKIE_NAME,
