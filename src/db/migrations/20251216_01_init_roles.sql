@@ -4,6 +4,7 @@ VALUES
   ('organiser', FALSE),
   ('developer', FALSE),
   ('designer', FALSE),
+  ('composer', FALSE),
   ('mappooler', FALSE),
   ('mapper', FALSE),
   ('playtester', FALSE),

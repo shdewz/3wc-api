@@ -1,3 +1,5 @@
+-- user and role data
+
 CREATE TABLE IF NOT EXISTS users (
   user_id BIGINT PRIMARY KEY,
   username TEXT NOT NULL,
@@ -41,6 +43,35 @@ CREATE TABLE IF NOT EXISTS role_permissions (
   PRIMARY KEY (role_id, permission_id)
 );
 
+-- tournament data
+
+CREATE TABLE IF NOT EXISTS tournaments (
+  id SERIAL PRIMARY KEY,
+  slug TEXT UNIQUE NOT NULL,
+  tournament_name TEXT NOT NULL,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE IF NOT EXISTS tournament_registration (
+  tournament_id SERIAL NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+  registration_start_utc TIMESTAMPTZ NOT NULL,
+  registration_end_utc TIMESTAMPTZ NOT NULL,
+  override_active BOOLEAN,
+  override_reason TEXT,
+  PRIMARY KEY (tournament_id)
+);
+
+CREATE TABLE IF NOT EXISTS tournament_bracket_config (
+  tournament_id SERIAL NOT NULL REFERENCES tournaments(id) ON DELETE CASCADE,
+  bracket_start_utc TIMESTAMPTZ NOT NULL,
+  rounds JSONB NOT NULL,
+  override_active BOOLEAN,
+  override_current_round TEXT,
+  PRIMARY KEY (tournament_id)
+);
+
+-- auth data
+
 CREATE TABLE IF NOT EXISTS tokens (
   user_id BIGINT REFERENCES users(user_id) ON DELETE CASCADE,
   access_token TEXT NOT NULL,
@@ -59,6 +90,9 @@ CREATE TABLE IF NOT EXISTS discord_tokens (
   PRIMARY KEY (user_id)
 );
 
+-- indeces
+
 CREATE INDEX IF NOT EXISTS idx_users_username ON users (username);
 CREATE INDEX IF NOT EXISTS idx_users_user_id ON users (user_id);
 CREATE INDEX IF NOT EXISTS idx_users_country ON users (country_code);
+CREATE INDEX IF NOT EXISTS idx_tournaments_slug ON tournaments (slug);
