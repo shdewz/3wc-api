@@ -6,7 +6,10 @@
     "paths": {
       "@/*": ["*"],
       "@routes/*": ["routes/*"],
-      "@types/*": ["types/*"]
+      "@types/*": ["types/*"],
+      "@middleware/*": ["middleware/*"],
+      "@services/*": ["services/*"],
+      "@config/*": ["config/*"]
     },
     "moduleResolution": "node",
     "outDir": "dist",
