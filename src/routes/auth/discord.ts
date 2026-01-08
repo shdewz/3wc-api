@@ -5,7 +5,7 @@ import { Router } from 'express';
 import { env } from '@/config/env.js';
 import { defaultCookieOptions, publicCookieOptions } from '@/lib/cookies.js';
 import { requireAuth } from '@/middleware/require-auth.js';
-import { fetchDiscordToken, fetchDiscordMe } from '@/services/discord.js';
+import { fetchDiscordToken, fetchDiscordMe, joinDiscordGuild } from '@/services/discord.js';
 import {
   clearDiscordForUser,
   removeDiscordTokens,
@@ -51,6 +51,18 @@ router.get('/callback', requireAuth, async (req, res) => {
 
   const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
   await upsertDiscordTokens(sessionUser.sub, tokens.access_token, tokens.refresh_token, expiresAt);
+
+  try {
+    await joinDiscordGuild(
+      env.DISCORD_GUILD_ID,
+      env.DISCORD_BOT_TOKEN,
+      discordUser.id,
+      tokens.access_token,
+      { nick: sessionUser.username }
+    );
+  } catch (e) {
+    console.error('Failed to join guild:', (e as Error).message);
+  }
 
   res.cookie('csrf_token', crypto.randomUUID(), publicCookieOptions);
 
