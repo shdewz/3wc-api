@@ -3,11 +3,10 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
 import authRouter from '@routes/auth/index.js';
-import healthRoutes from '@routes/health.js';
-import configRoutes from '@routes/config.js';
-import registrationRoutes from '@routes/registration.js';
-
-import { env } from '@/config/env.js';
+import healthRouter from '@routes/health.js';
+import registrationRouter from '@routes/registration.js';
+import statusRouter from '@routes/status.js';
+import { env } from '@config/env.js';
 
 const PORT = env.PORT || 4000;
 
@@ -40,9 +39,9 @@ else {
 }
 
 app.use('/auth', authRouter);
-app.use('/health', healthRoutes);
-app.use('/config', configRoutes);
-app.use('/', registrationRoutes);
+app.use('/health', healthRouter);
+app.use('/status', statusRouter);
+app.use('/', registrationRouter);
 
 app.use((_req, res) => res.status(404).send('Not found'));
 
