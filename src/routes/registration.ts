@@ -42,12 +42,12 @@ router.post(
 
     await pool.query(
       `
-    UPDATE users
-    SET registered = TRUE,
-        wants_captain = $2,
-        updated_at = now()
-    WHERE user_id = $1
-    `,
+      UPDATE users
+      SET registered = TRUE,
+          wants_captain = $2,
+          updated_at = now()
+      WHERE user_id = $1
+      `,
       [session.sub, wantsCaptain]
     );
 
@@ -66,17 +66,32 @@ router.post(
 
     await pool.query(
       `
-    UPDATE users
-    SET registered = FALSE,
-        wants_captain = FALSE,
-        updated_at = now()
-    WHERE user_id = $1
-    `,
+      UPDATE users
+      SET registered = FALSE,
+          wants_captain = FALSE,
+          updated_at = now()
+      WHERE user_id = $1
+      `,
       [session.sub]
     );
 
     return res.redirect(303, '/');
   }
 );
+
+router.get('/registrations', async (req: Request, res: Response) => {
+  res.set('Cache-Control', 'no-store');
+
+  const { rows } = await pool.query(
+    `
+    SELECT user_id, username, discord_id, discord_username, country_code, global_rank
+    FROM users
+    WHERE registered = TRUE
+    ORDER BY country_code ASC, global_rank ASC
+    `
+  );
+
+  return res.json(rows);
+});
 
 export default router;
