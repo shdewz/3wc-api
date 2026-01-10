@@ -12,9 +12,11 @@ services:
 
     healthcheck:
       test: ['CMD-SHELL', 'pg_isready -U ${POSTGRES_USER:-threewc} -d ${POSTGRES_DB:-threewc}']
+      start_period: 30s
+      start_interval: 2s
       interval: 30s
-      timeout: 5s
-      retries: 10
+      timeout: 3s
+      retries: 20
 
     networks:
       - app-net
