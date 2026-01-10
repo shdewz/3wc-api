@@ -1,4 +1,5 @@
 import express from 'express';
+import { rateLimit } from 'express-rate-limit';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -11,10 +12,21 @@ import { env } from '@config/env.js';
 const PORT = env.PORT || 4000;
 
 const app = express();
+
 app.use(helmet());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 1000,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+  ipv6Subnet: 56,
+});
+
+app.use(limiter);
 
 if (env.IS_PROD) app.set('trust proxy', 1);
 else {
