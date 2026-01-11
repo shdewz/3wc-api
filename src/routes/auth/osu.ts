@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 
 import { Request, Response, Router } from 'express';
-import { fetchOsuToken, fetchOsuMe } from '@services/osu.js';
+import { fetchOsuToken, fetchOsuMeFromToken, fetchOsuMeFromId } from '@services/osu.js';
 import {
   upsertTokens,
   upsertUserFromOsu,
@@ -40,7 +40,7 @@ router.get('/callback', async (req: Request, res: Response) => {
   if (state !== req.cookies.oauth_state) return res.status(403).send('Invalid state');
 
   const tokens = await fetchOsuToken(code);
-  const user = await fetchOsuMe(tokens.access_token);
+  const user = await fetchOsuMeFromToken(tokens.access_token);
 
   await upsertUserFromOsu(user);
   const expiresAt = new Date(Date.now() + tokens.expires_in * 1000);
@@ -79,7 +79,7 @@ router.post('/refresh', requireAuth, verifyCsrf, async (req: Request, res: Respo
 
   try {
     const dbUser = await runOncePerUser(userId, async () => {
-      const user = await fetchOsuMe(userId);
+      const user = await fetchOsuMeFromId(userId);
 
       await updateOsuUser(userId, {
         username: user.username,

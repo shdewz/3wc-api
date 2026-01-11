@@ -37,7 +37,7 @@ export const refreshOsuToken = async (refreshToken: string): Promise<AuthToken> 
   return (await res.json()) as AuthToken;
 };
 
-export const fetchOsuMe = async (userId: string): Promise<any> => {
+export const fetchOsuMeFromId = async (userId: string): Promise<any> => {
   let token = await getValidOsuAccessToken(userId);
 
   const res = await fetch('https://osu.ppy.sh/api/v2/me?mode=osu', {
@@ -56,6 +56,19 @@ export const fetchOsuMe = async (userId: string): Promise<any> => {
 
     return await retry.json();
   }
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`osu! /me failed: ${res.status} ${text}`);
+  }
+
+  return await res.json();
+};
+
+export const fetchOsuMeFromToken = async (accessToken: string): Promise<any> => {
+  const res = await fetch('https://osu.ppy.sh/api/v2/me?mode=osu', {
+    headers: { Authorization: `Bearer ${accessToken}` },
+  });
 
   if (!res.ok) {
     const text = await res.text().catch(() => '');
