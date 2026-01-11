@@ -1,18 +1,17 @@
 import crypto from 'node:crypto';
 
 import { Router } from 'express';
-
-import { env } from '@/config/env.js';
-import { defaultCookieOptions, publicCookieOptions } from '@/lib/cookies.js';
-import { requireAuth } from '@/middleware/require-auth.js';
-import { fetchDiscordToken, fetchDiscordMe, joinDiscordGuild } from '@/services/discord.js';
+import { defaultCookieOptions, publicCookieOptions } from '@lib/cookies.js';
+import { env } from '@config/env.js';
+import { requireAuth } from '@middleware/require-auth.js';
+import { verifyCsrf } from '@middleware/csrf.js';
+import { fetchDiscordToken, fetchDiscordMe, joinDiscordGuild } from '@services/discord.js';
 import {
   clearDiscordForUser,
   removeDiscordTokens,
   upsertDiscordForUser,
   upsertDiscordTokens,
-} from '@/services/user.js';
-import { verifyCsrf } from '@/middleware/csrf.js';
+} from '@services/user.js';
 
 const router = Router();
 

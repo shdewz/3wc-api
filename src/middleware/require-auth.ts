@@ -1,9 +1,10 @@
 import type { Request, Response, NextFunction } from 'express';
 
-import { verifySession } from '@/lib/jwt.js';
+import { env } from '@config/env.js';
+import { verifySession } from '@lib/jwt.js';
 
 export const requireAuth = async (req: Request, res: Response, next: NextFunction) => {
-  const token = req.cookies?.session;
+  const token = req.cookies?.[env.COOKIE_NAME];
   if (!token) return res.status(401).send('Unauthenticated');
 
   try {

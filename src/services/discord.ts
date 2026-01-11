@@ -1,5 +1,5 @@
 // services/discord.ts
-import { env } from '@/config/env.js';
+import { env } from '@config/env.js';
 
 export type DiscordToken = {
   access_token: string;

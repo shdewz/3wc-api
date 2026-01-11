@@ -1,10 +1,9 @@
 import { Request, Response, Router } from 'express';
-
-import { requireAuth } from '@/middleware/require-auth.js';
-import { verifyCsrf } from '@/middleware/csrf.js';
-import { getUserById } from '@/services/user.js';
-import { pool } from '@/db/index.js';
-import { attachTournamentSlug, requireRegistrationOpen } from '@/middleware/status-gate.js';
+import { requireAuth } from '@middleware/require-auth.js';
+import { verifyCsrf } from '@middleware/csrf.js';
+import { attachTournamentSlug, requireRegistrationOpen } from '@middleware/status-gate.js';
+import { getUserById } from '@services/user.js';
+import { pool } from '@db/index.js';
 
 const router = Router();
 

@@ -1,14 +1,13 @@
 import { Request, Response, Router } from 'express';
+import { defaultCookieOptions, publicCookieOptions } from '@lib/cookies.js';
+import { env } from '@config/env.js';
+import { verifyCsrf } from '@middleware/csrf.js';
+import { requireAuth } from '@middleware/require-auth.js';
+import { removeTokens } from '@services/user.js';
 
 import meRouter from './me.js';
 import osuRouter from './osu.js';
 import discordRouter from './discord.js';
-
-import { verifyCsrf } from '@/middleware/csrf.js';
-import { env } from '@/config/env.js';
-import { removeTokens } from '@/services/user.js';
-import { requireAuth } from '@/middleware/require-auth.js';
-import { defaultCookieOptions, publicCookieOptions } from '@/lib/cookies.js';
 
 const router = Router();
 
