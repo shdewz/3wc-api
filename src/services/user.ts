@@ -1,4 +1,7 @@
-import { pool } from '@/db/index.js';
+import { refreshOsuToken } from '@services/osu.js';
+import { pool } from '@db/index.js';
+
+/* upsert users */
 
 export const upsertUserFromOsu = async (user: any): Promise<void> => {
   await pool.query(
@@ -24,6 +27,52 @@ export const upsertUserFromOsu = async (user: any): Promise<void> => {
   );
 };
 
+export const upsertDiscordForUser = async (
+  osuUserId: number | string,
+  discord: { id: string; username?: string | null; avatar?: string | null }
+): Promise<void> => {
+  await pool.query(
+    `
+    UPDATE users
+    SET
+      discord_id = $2,
+      discord_username = $3,
+      discord_avatar_url = $4,
+      updated_at = now()
+    WHERE user_id = $1
+    `,
+    [osuUserId, discord.id, discord.username ?? null, discord.avatar ?? null]
+  );
+};
+
+/* update users */
+
+export const updateOsuUser = async (osuUserId: number | string, data: any): Promise<void> => {
+  await pool.query(
+    `
+    UPDATE users
+    SET
+      username = $2,
+      country_code = $3,
+      avatar_url = $4,
+      global_rank = $5,
+      country_rank = $6,
+      updated_at = now()
+    WHERE user_id = $1
+    `,
+    [
+      osuUserId,
+      data.username,
+      data.country_code ?? 'XX',
+      data.avatar_url ?? null,
+      data.global_rank ?? null,
+      data.country_rank ?? null,
+    ]
+  );
+};
+
+/* token handling */
+
 export const upsertTokens = async (
   userId: number | string,
   accessToken: string,
@@ -48,37 +97,6 @@ export const removeTokens = async (userId: number | string): Promise<void> => {
   await pool.query(`DELETE FROM tokens WHERE user_id = $1`, [userId]);
 };
 
-export const getUserRoles = async (userId: number | string): Promise<string[]> => {
-  const { rows } = await pool.query(
-    `
-    SELECT r.name
-    FROM user_roles ur
-    JOIN roles r ON r.id = ur.role_id
-    WHERE ur.user_id = $1
-    `,
-    [userId]
-  );
-  return rows.map((r) => r.name as string);
-};
-
-export const upsertDiscordForUser = async (
-  osuUserId: number | string,
-  discord: { id: string; username?: string | null; avatar?: string | null }
-): Promise<void> => {
-  await pool.query(
-    `
-    UPDATE users
-    SET
-      discord_id = $2,
-      discord_username = $3,
-      discord_avatar_url = $4,
-      updated_at = now()
-    WHERE user_id = $1
-    `,
-    [osuUserId, discord.id, discord.username ?? null, discord.avatar ?? null]
-  );
-};
-
 export const upsertDiscordTokens = async (
   osuUserId: number | string,
   accessToken: string,
@@ -99,23 +117,23 @@ export const upsertDiscordTokens = async (
   );
 };
 
-export const clearDiscordForUser = async (userId: number | string): Promise<void> => {
-  await pool.query(
+export const removeDiscordTokens = async (userId: number | string): Promise<void> => {
+  await pool.query(`DELETE FROM discord_tokens WHERE user_id = $1`, [userId]);
+};
+
+/* get functions */
+
+export const getUserRoles = async (userId: number | string): Promise<string[]> => {
+  const { rows } = await pool.query(
     `
-    UPDATE users
-    SET
-      discord_id = NULL,
-      discord_username = NULL,
-      discord_avatar_url = NULL,
-      updated_at = now()
-    WHERE user_id = $1
+    SELECT r.name
+    FROM user_roles ur
+    JOIN roles r ON r.id = ur.role_id
+    WHERE ur.user_id = $1
     `,
     [userId]
   );
-};
-
-export const removeDiscordTokens = async (userId: number | string): Promise<void> => {
-  await pool.query(`DELETE FROM discord_tokens WHERE user_id = $1`, [userId]);
+  return rows.map((r) => r.name as string);
 };
 
 export const getUserById = async (userId: number | string) => {
@@ -140,4 +158,65 @@ export const getUserById = async (userId: number | string) => {
   );
 
   return rows[0] ?? null;
+};
+
+export const getUserTokens = async (userId: number | string) => {
+  const { rows } = await pool.query(
+    `
+    SELECT
+      t.access_token,
+      t.refresh_token,
+      t.expires_at
+    FROM tokens t
+    WHERE t.user_id = $1
+    `,
+    [userId]
+  );
+
+  return rows[0] ?? null;
+};
+
+export const getValidOsuAccessToken = async (userId: string): Promise<string> => {
+  const tokens = await getUserTokens(userId);
+  if (!tokens || !tokens.refresh_token) throw new Error('No stored osu! tokens for user');
+
+  const now = Date.now();
+  const expiresAtMs = new Date(tokens.expires_at).getTime();
+  const isExpired = now >= expiresAtMs - 60 * 1000;
+
+  if (!isExpired) return tokens.access_token;
+
+  try {
+    const refreshed = await refreshOsuToken(tokens.refresh_token);
+    const newExpiresAt = new Date(Date.now() + refreshed.expires_in * 1000);
+
+    await upsertTokens(
+      userId,
+      refreshed.access_token,
+      refreshed.refresh_token ?? tokens.refresh_token,
+      newExpiresAt
+    );
+
+    return refreshed.access_token;
+  } catch (err) {
+    await removeTokens(userId);
+    throw new Error('osu! refresh failed; user must re-authenticate: ' + err);
+  }
+};
+
+/* other */
+
+export const clearDiscordForUser = async (userId: number | string): Promise<void> => {
+  await pool.query(
+    `
+    UPDATE users
+    SET
+      discord_id = NULL,
+      discord_username = NULL,
+      discord_avatar_url = NULL,
+      updated_at = now()
+    WHERE user_id = $1
+    `,
+    [userId]
+  );
 };
