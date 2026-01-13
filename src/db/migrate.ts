@@ -2,8 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { Pool } from 'pg';
-import { env } from '@config/env.js';
+import { pool, closePool } from '@db/index.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -11,8 +10,6 @@ const __dirname = path.dirname(__filename);
 const MIGRATIONS_DIR = path.resolve(__dirname, './migrations');
 
 const run = async () => {
-  const pool = new Pool({ connectionString: env.DATABASE_URL });
-
   const client = await pool.connect();
 
   try {
@@ -59,7 +56,7 @@ const run = async () => {
       console.error(e);
     }
     client.release();
-    await pool.end();
+    await closePool();
   }
 };
 

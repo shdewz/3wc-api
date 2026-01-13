@@ -1,61 +1,65 @@
-import { pool } from '@db/index.js';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-export const seedTournament = async ({
-  slug,
-  name,
-  regStart,
-  regEnd,
-  bracketStart,
-  rounds,
-}: {
-  slug: string;
-  name: string;
-  regStart: string;
-  regEnd: string;
-  bracketStart: string;
-  rounds: string[];
-}) => {
+import { pool, closePool } from '@db/index.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+const SEEDS_DIR = path.resolve(__dirname, './seeds');
+
+const run = async () => {
   const client = await pool.connect();
+
   try {
-    await client.query('BEGIN');
+    await client.query('SELECT pg_advisory_lock($1)', [9876543210]);
 
-    const tRes = await client.query(
-      `INSERT INTO tournaments (slug, tournament_name)
-       VALUES ($1, $2)
-       ON CONFLICT (slug) DO UPDATE SET tournament_name = EXCLUDED.tournament_name
-       RETURNING id`,
-      [slug, name]
-    );
-    const tournamentId = tRes.rows[0].id;
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS seeds (
+        id TEXT PRIMARY KEY,
+        applied_at TIMESTAMPTZ NOT NULL DEFAULT now()
+      )
+    `);
 
-    await client.query(
-      `INSERT INTO tournament_registration (tournament_id, registration_start_utc, registration_end_utc, override_active, override_reason)
-       VALUES ($1, $2, $3, NULL, NULL)
-       ON CONFLICT (tournament_id) DO UPDATE SET
-         registration_start_utc = EXCLUDED.registration_start_utc,
-         registration_end_utc = EXCLUDED.registration_end_utc,
-         override_active = EXCLUDED.override_active,
-         override_reason = EXCLUDED.override_reason`,
-      [tournamentId, regStart, regEnd]
-    );
+    const files = fs
+      .readdirSync(SEEDS_DIR)
+      .filter((f) => f.endsWith('.ts') || f.endsWith('.js'))
+      .sort();
 
-    await client.query(
-      `INSERT INTO tournament_bracket_config (tournament_id, bracket_start_utc, rounds, override_active, override_current_round)
-       VALUES ($1, $2, $3::jsonb, NULL, NULL)
-       ON CONFLICT (tournament_id) DO UPDATE SET
-         bracket_start_utc = EXCLUDED.bracket_start_utc,
-         rounds = EXCLUDED.rounds,
-         override_active = EXCLUDED.override_active,
-         override_current_round = EXCLUDED.override_current_round`,
-      [tournamentId, bracketStart, JSON.stringify(rounds)]
-    );
+    const { rows: applied } = await client.query('SELECT id FROM seeds');
+    const appliedSet = new Set(applied.map((r) => r.id));
 
-    await client.query('COMMIT');
-    console.log(`Seeded tournament "${slug}" (${tournamentId})`);
-  } catch (e) {
-    await client.query('ROLLBACK');
-    throw e;
+    for (const file of files) {
+      if (appliedSet.has(file)) {
+        console.log(`Skipped: ${file} (already applied)`);
+        continue;
+      }
+
+      try {
+        const seedModule = await import(`./${path.join('seeds', file)}`);
+        const seed = seedModule.default || seedModule;
+
+        if (typeof seed !== 'function') {
+          console.log(`Skipped: ${file} (no default export function)`);
+          continue;
+        }
+
+        await seed();
+        await client.query('INSERT INTO seeds (id) VALUES ($1)', [file]);
+        console.log(`Applied: ${file}`);
+      } catch (err) {
+        console.error(`Failed: ${file}`, err);
+        throw err;
+      }
+    }
   } finally {
     client.release();
+    await closePool();
   }
 };
+
+run().catch((err) => {
+  console.error('Seed failed:', err);
+  process.exit(1);
+});
