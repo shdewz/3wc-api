@@ -83,7 +83,7 @@ router.get('/registrations', async (req: Request, res: Response) => {
 
   const { rows } = await pool.query(
     `
-    SELECT user_id, username, discord_id, discord_username, country_code, global_rank
+    SELECT user_id, username, discord_id, discord_username, country_code, global_rank, avatar_url
     FROM users
     WHERE registered = TRUE
     ORDER BY country_code ASC, global_rank ASC
