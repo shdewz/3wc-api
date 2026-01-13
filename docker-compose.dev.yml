@@ -43,7 +43,6 @@ services:
 
     volumes:
       - .:/app
-      - /app/node_modules
       - pnpm-store:/pnpm-store
 
     depends_on:
