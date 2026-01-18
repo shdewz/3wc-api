@@ -81,11 +81,17 @@ router.post(
 router.get('/registrations', async (req: Request, res: Response) => {
   res.set('Cache-Control', 'no-store');
 
+  const onlyValid = req.query.onlyValid === 'true';
+
+  const whereClause = onlyValid
+    ? 'WHERE registered = TRUE AND global_rank >= 100 AND global_rank <= 999'
+    : 'WHERE registered = TRUE';
+
   const { rows } = await pool.query(
     `
     SELECT user_id, username, discord_id, discord_username, country_code, global_rank, avatar_url
     FROM users
-    WHERE registered = TRUE
+    ${whereClause}
     ORDER BY country_code ASC, global_rank ASC
     `
   );
