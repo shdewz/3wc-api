@@ -35,12 +35,15 @@ services:
       DOTENV_CONFIG_QUIET: 'true'
       PNPM_HOME: /root/.local/share/pnpm
       PNPM_STORE_DIR: /pnpm-store
+      CHOKIDAR_USEPOLLING: 'true'
+      CHOKIDAR_INTERVAL: '1000'
 
     ports:
       - '4000:4000'
 
     volumes:
       - .:/app
+      - api-node-modules:/app/node_modules
       - pnpm-store:/pnpm-store
 
     depends_on:
@@ -50,3 +53,4 @@ services:
 volumes:
   pgdata-dev:
   pnpm-store:
+  api-node-modules:
