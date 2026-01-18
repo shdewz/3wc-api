@@ -8,8 +8,6 @@ WORKDIR /app
 
 ENV PNPM_HOME=/root/.local/share/pnpm \
     PNPM_STORE_DIR=/pnpm-store \
-    CHOKIDAR_USEPOLLING=true \
-    CHOKIDAR_INTERVAL=200 \
     DOTENV_CONFIG_QUIET=true
 
 COPY package.json pnpm-lock.yaml ./

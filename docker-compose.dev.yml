@@ -35,8 +35,6 @@ services:
       DOTENV_CONFIG_QUIET: 'true'
       PNPM_HOME: /root/.local/share/pnpm
       PNPM_STORE_DIR: /pnpm-store
-      CHOKIDAR_USEPOLLING: 'true'
-      CHOKIDAR_INTERVAL: '200'
 
     ports:
       - '4000:4000'
