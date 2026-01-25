@@ -1,30 +1,68 @@
 import { refreshOsuToken } from '@services/osu.js';
 import { pool } from '@db/index.js';
+import { resolveTournament, computeRegistrationStatus } from '@services/tournament-status.js';
+
+/* helpers */
+
+const shouldSkipRankUpdate = async (userId: number | string): Promise<boolean> => {
+  const { rows } = await pool.query('SELECT registered FROM users WHERE user_id = $1', [userId]);
+
+  if (rows.length === 0 || !rows[0].registered) {
+    return false;
+  }
+
+  try {
+    const tournament = await resolveTournament();
+    const regStatus = await computeRegistrationStatus(tournament.id);
+
+    return !regStatus.isActive;
+  } catch (err) {
+    console.log(err);
+
+    return false;
+  }
+};
 
 /* upsert users */
 
 export const upsertUserFromOsu = async (user: any): Promise<void> => {
-  await pool.query(
-    `
-    INSERT INTO users (user_id, username, country_code, avatar_url, global_rank, country_rank)
-    VALUES ($1, $2, $3, $4, $5, $6)
-    ON CONFLICT (user_id) DO UPDATE SET
-      username = EXCLUDED.username,
-      country_code = EXCLUDED.country_code,
-      avatar_url = EXCLUDED.avatar_url,
-      global_rank = EXCLUDED.global_rank,
-      country_rank = EXCLUDED.country_rank,
-      updated_at = now()
-    `,
-    [
-      user.id,
-      user.username,
-      user.country_code ?? 'XX',
-      user.avatar_url ?? null,
-      user.statistics?.global_rank ?? null,
-      user.statistics?.country_rank ?? null,
-    ]
-  );
+  const skipRankUpdate = await shouldSkipRankUpdate(user.id);
+
+  if (skipRankUpdate) {
+    await pool.query(
+      `
+      UPDATE users SET
+        username = $2,
+        country_code = $3,
+        avatar_url = $4,
+        updated_at = now()
+      WHERE user_id = $1
+      `,
+      [user.id, user.username, user.country_code ?? 'XX', user.avatar_url ?? null]
+    );
+  } else {
+    await pool.query(
+      `
+      INSERT INTO users (user_id, username, country_code, avatar_url, global_rank, country_rank)
+      VALUES ($1, $2, $3, $4, $5, $6)
+      ON CONFLICT (user_id) DO UPDATE SET
+        username = EXCLUDED.username,
+        country_code = EXCLUDED.country_code,
+        avatar_url = EXCLUDED.avatar_url,
+        global_rank = EXCLUDED.global_rank,
+        country_rank = EXCLUDED.country_rank,
+        updated_at = now()
+      `,
+      [
+        user.id,
+        user.username,
+        user.country_code ?? 'XX',
+        user.avatar_url ?? null,
+        user.statistics?.global_rank ?? null,
+        user.statistics?.country_rank ?? null,
+      ]
+    );
+  }
 };
 
 export const upsertDiscordForUser = async (
@@ -48,27 +86,44 @@ export const upsertDiscordForUser = async (
 /* update users */
 
 export const updateOsuUser = async (osuUserId: number | string, data: any): Promise<void> => {
-  await pool.query(
-    `
-    UPDATE users
-    SET
-      username = $2,
-      country_code = $3,
-      avatar_url = $4,
-      global_rank = $5,
-      country_rank = $6,
-      updated_at = now()
-    WHERE user_id = $1
-    `,
-    [
-      osuUserId,
-      data.username,
-      data.country_code ?? 'XX',
-      data.avatar_url ?? null,
-      data.global_rank ?? null,
-      data.country_rank ?? null,
-    ]
-  );
+  const skipRankUpdate = await shouldSkipRankUpdate(osuUserId);
+
+  if (skipRankUpdate) {
+    await pool.query(
+      `
+      UPDATE users
+      SET
+        username = $2,
+        country_code = $3,
+        avatar_url = $4,
+        updated_at = now()
+      WHERE user_id = $1
+      `,
+      [osuUserId, data.username, data.country_code ?? 'XX', data.avatar_url ?? null]
+    );
+  } else {
+    await pool.query(
+      `
+      UPDATE users
+      SET
+        username = $2,
+        country_code = $3,
+        avatar_url = $4,
+        global_rank = $5,
+        country_rank = $6,
+        updated_at = now()
+      WHERE user_id = $1
+      `,
+      [
+        osuUserId,
+        data.username,
+        data.country_code ?? 'XX',
+        data.avatar_url ?? null,
+        data.global_rank ?? null,
+        data.country_rank ?? null,
+      ]
+    );
+  }
 };
 
 /* token handling */
