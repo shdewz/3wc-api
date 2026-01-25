@@ -1,15 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 
 export const verifyCsrf = (req: Request, res: Response, next: NextFunction) => {
-  console.log(
-    'csrf cookie:',
-    req.cookies?.csrf_token,
-    'header:',
-    req.get('X-CSRF-Token'),
-    'body:',
-    req.body?.csrf_token
-  );
-
   const header = req.get('X-CSRF-Token') || req.get('x-csrf-token');
   const cookie = req.cookies?.csrf_token;
   const bodyToken =
